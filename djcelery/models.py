@@ -218,6 +218,7 @@ class PeriodicTask(models.Model):
                               auto_now=False, auto_now_add=False,
                               editable=False, blank=True, null=True)
     total_run_count = models.PositiveIntegerField(default=0, editable=False)
+    repeat = models.PositiveIntegerField(default=0, editable=True)
     date_changed = models.DateTimeField(auto_now=True)
     description = models.TextField(_("description"), blank=True)
 
@@ -243,6 +244,8 @@ class PeriodicTask(models.Model):
         self.queue = self.queue or None
         if not self.enabled:
             self.last_run_at = None
+        if self.repeat and self.total_run_count >= self.repeat:
+            self.expires = datetime.now()
         super(PeriodicTask, self).save(*args, **kwargs)
 
     def __unicode__(self):
